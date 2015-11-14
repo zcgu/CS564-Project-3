@@ -80,7 +80,6 @@ void BufMgr::allocBuf(FrameId & frame)
 		// If this page is recently used, clear the ref bit, continue.
 		if (bufDescTable[clockHand].refbit == true) {
 			bufDescTable[clockHand].refbit = false;
-			flag = clockHand;
 			continue;
 		}
 		// If this page is pinned, continue to next.
