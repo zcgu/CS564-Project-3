@@ -51,7 +51,6 @@ void BufMgr::advanceClock()
 	clockHand = (clockHand+1) % numBufs;
 }
 
-//TODO:The algorithm
 void BufMgr::allocBuf(FrameId & frame)
 {
 	FrameId flag = clockHand;
