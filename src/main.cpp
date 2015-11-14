@@ -23,12 +23,13 @@
 using namespace badgerdb;
 
 const PageId num = 100;
-PageId pid[num], pageno1, pageno2, pageno3, i;
-RecordId rid[num], rid2, rid3;
+PageId pid[2*num], pageno1, pageno2, pageno3, i, pid2[num];
+RecordId rid[2*num], rid2, rid3, rid4[num];
 Page *page, *page2, *page3;
 char tmpbuf[100];
 BufMgr* bufMgr;
-File *file1ptr, *file2ptr, *file3ptr, *file4ptr, *file5ptr;
+File *file1ptr, *file2ptr, *file3ptr, *file4ptr, *file5ptr, *file7ptr,*file8ptr,*file9ptr,*file10ptr,*file11ptr,*file12ptr;
+
 
 void test1();
 void test2();
@@ -38,7 +39,14 @@ void test5();
 void test6();
 void testBufMgr();
 
-int main() 
+void test7();
+void test8();
+void test9();
+void test10();
+void test11();
+void test12();
+
+int main()
 {
 	//Following code shows how to you File and Page classes
 
@@ -107,20 +115,35 @@ void testBufMgr()
 	bufMgr = new BufMgr(num);
 
 	// create dummy files
-  const std::string& filename1 = "test.1";
-  const std::string& filename2 = "test.2";
-  const std::string& filename3 = "test.3";
-  const std::string& filename4 = "test.4";
-  const std::string& filename5 = "test.5";
+	const std::string& filename1 = "test.1";
+	const std::string& filename2 = "test.2";
+	const std::string& filename3 = "test.3";
+	const std::string& filename4 = "test.4";
+	const std::string& filename5 = "test.5";
+
+	const std::string& filename7 = "test.7";
+	const std::string& filename8 = "test.8";
+	const std::string& filename9 = "test.9";
+	const std::string& filename10 = "test.10";
+	const std::string& filename11 = "test.11";
+	const std::string& filename12 = "test.12";
 
   try
 	{
-    File::remove(filename1);
-    File::remove(filename2);
-    File::remove(filename3);
-    File::remove(filename4);
-    File::remove(filename5);
-  }
+		File::remove(filename1);
+		File::remove(filename2);
+		File::remove(filename3);
+		File::remove(filename4);
+		File::remove(filename5);
+
+		File::remove(filename7);
+		File::remove(filename8);
+		File::remove(filename9);
+		File::remove(filename10);
+		File::remove(filename11);
+		File::remove(filename12);
+
+	}
 	catch(FileNotFoundException e)
 	{
   }
@@ -131,11 +154,25 @@ void testBufMgr()
 	File file4 = File::create(filename4);
 	File file5 = File::create(filename5);
 
+	File file7 = File::create(filename7);
+	File file8 = File::create(filename8);
+	File file9 = File::create(filename9);
+	File file10 = File::create(filename10);
+	File file11 = File::create(filename11);
+	File file12 = File::create(filename12);
+
 	file1ptr = &file1;
 	file2ptr = &file2;
 	file3ptr = &file3;
 	file4ptr = &file4;
 	file5ptr = &file5;
+
+	file7ptr = &file7;
+	file8ptr = &file8;
+	file9ptr = &file9;
+	file10ptr = &file10;
+	file11ptr = &file11;
+	file12ptr = &file12;
 
 	//Test buffer manager
 	//Comment tests which you do not wish to run now. Tests are dependent on their preceding tests. So, they have to be run in the following order. 
@@ -147,6 +184,13 @@ void testBufMgr()
 	test5();
 	test6();
 
+	test7();
+	test8();
+	test9();
+	test10();
+	test11();
+	test12();
+
 	//Close files before deleting them
 	file1.~File();
 	file2.~File();
@@ -154,12 +198,26 @@ void testBufMgr()
 	file4.~File();
 	file5.~File();
 
+	file7.~File();
+	file8.~File();
+	file9.~File();
+	file10.~File();
+	file11.~File();
+	file12.~File();
+
 	//Delete files
 	File::remove(filename1);
 	File::remove(filename2);
 	File::remove(filename3);
 	File::remove(filename4);
 	File::remove(filename5);
+
+	File::remove(filename7);
+	File::remove(filename8);
+	File::remove(filename9);
+	File::remove(filename10);
+	File::remove(filename11);
+	File::remove(filename12);
 
 	delete bufMgr;
 
@@ -319,3 +377,158 @@ void test6()
 
 	bufMgr->flushFile(file1ptr);
 }
+
+void test7()
+{
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file7ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file7ptr, pid[i], true);
+	}
+
+	bufMgr->flushFile(file7ptr);
+
+	for (i = 0; i < num; i++)
+	{
+		bufMgr->readPage(file7ptr, pid[i], page);
+		if(strncmp(page->getRecord(rid[i]).c_str(), tmpbuf, strlen(tmpbuf)) != 0)
+		{
+			PRINT_ERROR("ERROR :: CONTENTS DID NOT MATCH");
+		}
+		bufMgr->unPinPage(file7ptr, pid[i], false);
+	}
+
+	bufMgr->flushFile(file7ptr);
+
+	std::cout << "Test 7 passed" << "\n";
+}
+
+void test8()
+{
+	for (i = 0; i < 2*num; i++) {
+		bufMgr->allocPage(file8ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file8ptr, pid[i], true);
+	}
+
+	for (i = 0; i < 2*num; i++)
+	{
+		bufMgr->readPage(file8ptr, pid[i], page);
+		if(strncmp(page->getRecord(rid[i]).c_str(), tmpbuf, strlen(tmpbuf)) != 0)
+		{
+			PRINT_ERROR("ERROR :: CONTENTS DID NOT MATCH");
+		}
+		bufMgr->unPinPage(file8ptr, pid[i], false);
+	}
+
+	bufMgr->flushFile(file8ptr);
+
+	std::cout << "Test 8 passed" << "\n";
+}
+
+void test9()
+{
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file9ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file9ptr, pid[i], true);
+	}
+
+	for (i = 0; i < num; i++) {
+		bufMgr->disposePage(file9ptr, pid[i]);
+	}
+
+	for (i = 0; i < num; i++) {
+		try{
+			bufMgr->readPage(file9ptr, pid[i], page);
+			PRINT_ERROR("ERROR :: Page should not exist. Exception should have been thrown before execution reaches this point.");
+		}
+		catch (InvalidPageException e){
+		}
+	}
+
+	bufMgr->flushFile(file9ptr);
+
+	std::cout << "Test 9 passed" << "\n";
+}
+
+void test10()
+{
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file9ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file9ptr, pid[i], true);
+	}
+
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file10ptr, pid2[i], page);
+		rid4[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file10ptr, pid2[i], true);
+	}
+
+	for (i = 0; i < num; i++)
+	{
+		bufMgr->readPage(file9ptr, pid[i], page);
+		if(strncmp(page->getRecord(rid[i]).c_str(), tmpbuf, strlen(tmpbuf)) != 0)
+		{
+			PRINT_ERROR("ERROR :: CONTENTS DID NOT MATCH");
+		}
+		bufMgr->unPinPage(file9ptr, pid[i], false);
+	}
+
+	bufMgr->flushFile(file9ptr);
+	bufMgr->flushFile(file10ptr);
+
+	std::cout << "Test 10 passed" << "\n";
+}
+
+void test11()
+{
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file11ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+	}
+
+	for (i = 0; i < num; i++) {
+		bufMgr->unPinPage(file11ptr, pid[i], true);
+	}
+
+	for (i = 0; i < num; i++) {
+		try{
+			bufMgr->unPinPage(file11ptr, pid[i], true);
+			PRINT_ERROR("ERROR :: Page is already unpinned. Exception should have been thrown before execution reaches this point.");
+		}
+		catch (PageNotPinnedException e){
+		}
+	}
+
+	bufMgr->flushFile(file11ptr);
+
+	std::cout << "Test 11 passed" << "\n";
+}
+
+void test12()
+{
+	for (i = 0; i < num; i++) {
+		bufMgr->allocPage(file12ptr, pid[i], page);
+		rid[i] = page->insertRecord(tmpbuf);
+		bufMgr->unPinPage(file12ptr, pid[i], true);
+	}
+
+	bufMgr->flushFile(file7ptr);
+
+	for (i = 0; i < num; i++)
+	{
+		bufMgr->readPage(file12ptr, pid[i], page);
+		if(strncmp(page->getRecord(rid[i]).c_str(), tmpbuf, strlen(tmpbuf)) != 0)
+		{
+			PRINT_ERROR("ERROR :: CONTENTS DID NOT MATCH");
+		}
+		bufMgr->unPinPage(file12ptr, pid[i], false);
+	}
+
+	bufMgr->flushFile(file12ptr);
+
+	std::cout << "Test 12 passed" << "\n";
+}
+

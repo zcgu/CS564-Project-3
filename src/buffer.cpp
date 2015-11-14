@@ -54,8 +54,10 @@ void BufMgr::advanceClock()
 void BufMgr::allocBuf(FrameId & frame)
 {
 	FrameId flag = clockHand;
-	while(true) {
+	int pass = 0;
+	while(pass < 2) {
 		advanceClock();
+		if (clockHand == flag) pass++;
 		// If this frame is unused, return this page.
 		if (bufDescTable[clockHand].valid == false) {
 			frame = clockHand;
@@ -69,8 +71,6 @@ void BufMgr::allocBuf(FrameId & frame)
 		}
 		// If this page is pinned, continue to next.
 		if (bufDescTable[clockHand].pinCnt > 0) {
-			if(clockHand == flag)
-				throw BufferExceededException();
 			continue;
 		}
 		// This frame is selected, clean this frame.
@@ -83,6 +83,7 @@ void BufMgr::allocBuf(FrameId & frame)
 		frame = clockHand;
 		return;
 	}
+	throw BufferExceededException();
 }
 
 	
@@ -116,6 +117,7 @@ void BufMgr::unPinPage(File* file, const PageId pageNo, const bool dirty)
 		hashTable->lookup(file, pageNo, tmpFrameId);
 	}catch (HashNotFoundException e){
 		// Does nothing if page is not found in the hash table lookup.
+		std::cout<<"not found"<<"\n";
 		return;
 	}
 
