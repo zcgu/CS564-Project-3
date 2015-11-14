@@ -245,15 +245,15 @@ class BufMgr
 	 */
   void allocPage(File* file, PageId &PageNo, Page*& page); 
 
-	/**
-	 * Writes out all dirty pages of the file to disk.
-	 * All the frames assigned to the file need to be unpinned from buffer pool before this function can be successfully called.
-	 * Otherwise Error returned.
-	 *
-	 * @param file   	File object
-   * @throws  PagePinnedException If any page of the file is pinned in the buffer pool 
-   * @throws BadBufferException If any frame allocated to the file is found to be invalid
-	 */
+		/**
+		 * Writes out all dirty pages of the file to disk.
+		 * All the frames assigned to the file need to be unpinned from buffer pool before this function can be successfully called.
+		 * Otherwise Error returned.
+		 *
+		 * @param file   	File object
+	   * @throws  PagePinnedException If any page of the file is pinned in the buffer pool
+	   * @throws BadBufferException If any frame allocated to the file is found to be invalid
+		 */
   void flushFile(const File* file);
 
 	/**
